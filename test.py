@@ -19,7 +19,7 @@ from citylearn_env.simulation_setup import set_schema_buildings, set_schema_simu
 from citylearn_env.utils import CustomCallback, get_loader, SACDCallback
 from citylearn_env.custom_rewards import SACCustomReward, YourCustomReward
 
-#from citylearn_env.simulation_results import plot_actions, plot_rewards, plot_simulation_summary
+from citylearn_env.simulation_results import plot_actions, plot_rewards, plot_simulation_summary
 
 # type hinting
 from typing import List, Mapping, Tuple
@@ -155,8 +155,8 @@ def train_your_custom_sac(
         observations, _, _, _ = sacr_env.step(actions)
         sacr_actions_list.append(actions)
 
-    #fig = plot_actions(sacr_actions_list, 'SAC Actions', sacr_env)
-    #plt.show()
+    fig = plot_actions(sacr_actions_list, 'SAC Actions', sacr_env)
+    plt.show()
     reference_envs={'SAC': sacr_env}
 
     # initialize SACD loader

@@ -1,0 +1,81 @@
+from citylearn.reward_function import RewardFunction, SolarPenaltyReward
+
+from citylearn.citylearn import CityLearnEnv
+from typing import List
+import numpy as np
+
+class SACCustomReward(RewardFunction):
+    def __init__(self, env: CityLearnEnv):
+        r"""Initialize CustomReward.
+
+        Parameters
+        ----------
+        env: Mapping[str, CityLearnEnv]
+            CityLearn environment instance.
+        """
+
+        super().__init__(env)
+
+    def calculate(self) -> List[float]:
+        r"""Returns reward for most recent action.
+
+        The reward is designed to minimize electricity cost.
+        It is calculated for each building, i and summed to provide the agent
+        with a reward that is representative of all n buildings.
+        It encourages net-zero energy use by penalizing grid load satisfaction
+        when there is energy in the battery as well as penalizing
+        net export when the battery is not fully charged through the penalty
+        term. There is neither penalty nor reward when the battery
+        is fully charged during net export to the grid. Whereas, when the
+        battery is charged to capacity and there is net import from the
+        grid the penalty is maximized.
+
+        Returns
+        -------
+        reward: List[float]
+            Reward for transition to current timestep.
+        """
+
+        reward_list = []
+
+        for b in self.env.buildings:
+            cost = b.net_electricity_consumption_cost[-1]
+            battery_capacity = b.electrical_storage.capacity_history[0]
+            battery_soc = b.electrical_storage.soc[-1]/battery_capacity
+            penalty = -(1.0 + np.sign(cost)*battery_soc)
+            reward = penalty*abs(cost)
+            reward_list.append(reward)
+
+        reward = [sum(reward_list)]
+
+        return reward
+
+
+
+
+# --------------- DEFINE CUSTOM REWARD FUNCTION -----------------
+class YourCustomReward(SACCustomReward, SolarPenaltyReward):
+    def __init__(self, env: CityLearnEnv):
+        r"""Initialize CustomReward.
+
+        Parameters
+        ----------
+        env: Mapping[str, CityLearnEnv]
+            CityLearn environment instance.
+        """
+
+        SolarPenaltyReward.__init__(self, env)
+        SACCustomReward.__init__(self, env)
+
+    def calculate(self) -> List[float]:
+        r"""Returns reward for most recent action.
+
+        <Provide a description for your custom reward>.
+
+        Parameters
+        ----------
+        reward: List[float]
+            Reward for transition to current timestep.
+        """
+        reward = [sum(SolarPenaltyReward.calculate(self)), sum(SACCustomReward.calculate(self))]
+        return reward

@@ -1,6 +1,7 @@
-from abc import ABC, abstractmethod
+from stable_baselines3 import SAC
 
-class Test(ABC):
+def main():
+    print("Hello World!")
 
-    def __init__(self):
-        self.test = "test"
+if __name__ == "__main__":
+    main()

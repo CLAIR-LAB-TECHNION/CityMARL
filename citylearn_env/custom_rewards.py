@@ -54,7 +54,7 @@ class SACCustomReward(RewardFunction):
 
 
 # --------------- DEFINE CUSTOM REWARD FUNCTION -----------------
-class YourCustomReward(SACCustomReward, SolarPenaltyReward):
+class SACSolarReward(SACCustomReward, SolarPenaltyReward):
     def __init__(self, env: CityLearnEnv):
         r"""Initialize CustomReward.
 
@@ -77,5 +77,5 @@ class YourCustomReward(SACCustomReward, SolarPenaltyReward):
         reward: List[float]
             Reward for transition to current timestep.
         """
-        reward = [sum(SolarPenaltyReward.calculate(self)), sum(SACCustomReward.calculate(self))]
-        return reward
+        rewards = [sum(SolarPenaltyReward.calculate(self)), sum(SACCustomReward.calculate(self))]
+        return rewards

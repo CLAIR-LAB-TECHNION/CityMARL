@@ -15,7 +15,7 @@ from citylearn.reward_function import RewardFunction, SolarPenaltyReward
 from citylearn.wrappers import NormalizedObservationWrapper, StableBaselines3Wrapper
 
 # Simulation setup
-from citylearn_env.simulation_setup import set_schema_buildings, set_schema_simulation_period, set_active_observations
+from citylearn_env.environment_setup import set_schema_buildings, set_schema_simulation_period, set_active_observations
 from citylearn_env.utils import CustomCallback, get_loader, SACDCallback
 from citylearn_env.custom_rewards import SACCustomReward, YourCustomReward
 

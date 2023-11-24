@@ -2,9 +2,9 @@ from typing import List, Tuple
 import os
 import pandas as pd
 import numpy as np
+from citylearn.data import DataSet
 
-
-def customize_environment_one_building(dataset_name, building_name, day_count, random_seed, active_observations):
+def customize_environment(dataset_name, building_names, day_count, random_seed, active_observations):
     print("customizing environment")
 
     # get schema
@@ -12,11 +12,16 @@ def customize_environment_one_building(dataset_name, building_name, day_count, r
     root_directory = schema['root_directory']
 
     # get energy simulation file
-    energy_filename = schema['buildings'][building_name]['energy_simulation']
+    energy_files = []
+    for building_name in building_names:
+        energy_filename = schema['buildings'][building_name]['energy_simulation']
+        energy_files.append(energy_filename)
 
-    schema, buildings = set_schema_buildings(schema, 1, random_seed)
-    schema, simulation_start_time_step, simulation_end_time_step = set_schema_simulation_period(schema, day_count,
-                                                                                                random_seed)
+    # get schema
+    schema, buildings = set_schema_buildings(schema, len(building_names), random_seed)
+    # set simulation period
+    schema, simulation_start_time_step, simulation_end_time_step = set_schema_simulation_period(schema, day_count, random_seed)
+    # set active observation
     schema = set_active_observations(schema, active_observations)
 
     print('Selected buildings:', buildings)
@@ -25,6 +30,7 @@ def customize_environment_one_building(dataset_name, building_name, day_count, r
           )
     print(f'Active observations:', active_observations)
 
+    return schema
 
 def set_schema_buildings(schema: dict, count: int, seed: int) -> Tuple[dict, List[str]]:
     """Randomly select number of buildings to set as active in the schema.

@@ -4,6 +4,28 @@ import pandas as pd
 import numpy as np
 
 
+def customize_environment_one_building(dataset_name, building_name, day_count, random_seed, active_observations):
+    print("customizing environment")
+
+    # get schema
+    schema = DataSet.get_schema(dataset_name)
+    root_directory = schema['root_directory']
+
+    # get energy simulation file
+    energy_filename = schema['buildings'][building_name]['energy_simulation']
+
+    schema, buildings = set_schema_buildings(schema, 1, random_seed)
+    schema, simulation_start_time_step, simulation_end_time_step = set_schema_simulation_period(schema, day_count,
+                                                                                                random_seed)
+    schema = set_active_observations(schema, active_observations)
+
+    print('Selected buildings:', buildings)
+    print(f'Selected {day_count}-day period time steps:',
+          (simulation_start_time_step, simulation_end_time_step)
+          )
+    print(f'Active observations:', active_observations)
+
+
 def set_schema_buildings(schema: dict, count: int, seed: int) -> Tuple[dict, List[str]]:
     """Randomly select number of buildings to set as active in the schema.
 

@@ -1,0 +1,21 @@
+Metadata-Version: 2.1
+Name: energy_net_MARL
+Version: 0.0.0
+Summary: A package for testing MARL in smart-grids.
+Home-page: https://github.com/CLAIR-LAB-TECHNION/EnergyNetMARL
+Author: Sarah Keren
+Author-email: sarahk@technion.ac.il
+Keywords: AI,MARL,multi-agent,smart-grids
+Classifier: 'License :: OSI Approved :: MIT License'
+Classifier: 'Programming Language :: Python'
+Classifier: 'Programming Language :: Python :: 3'
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: citylearn==1.8.0
+Requires-Dist: ipywidgets==8.1.1
+Requires-Dist: matplotlib==3.8.0
+Requires-Dist: seaborn==0.12.2
+Requires-Dist: stable_baselines3
+Requires-Dist: shimmy>=0.2.1
+
+# CityMARL

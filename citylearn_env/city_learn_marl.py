@@ -1,5 +1,6 @@
-def customize_environment():
-    print("customizing environment")
+
+def setup_environment():
+    print("setting up learning")
 
 def setup_learning():
     print("setting up learning")

@@ -7,7 +7,7 @@ from citylearn.wrappers import NormalizedObservationWrapper
 from citylearn.wrappers import StableBaselines3Wrapper
 import matplotlib.pyplot as plt
 
-from simulation_setup import set_schema_buildings, set_schema_simulation_period, set_active_observations
+from environment_setup import set_schema_buildings, set_schema_simulation_period, set_active_observations
 from utils import CustomCallback, get_loader
 from simulation_results import plot_actions, plot_rewards, plot_simulation_summary
 # baseline RL algorithms

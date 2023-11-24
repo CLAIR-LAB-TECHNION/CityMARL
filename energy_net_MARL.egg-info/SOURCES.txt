@@ -1,8 +1,0 @@
-README.md
-pyproject.toml
-setup.cfg
-energy_net_MARL.egg-info/PKG-INFO
-energy_net_MARL.egg-info/SOURCES.txt
-energy_net_MARL.egg-info/dependency_links.txt
-energy_net_MARL.egg-info/requires.txt
-energy_net_MARL.egg-info/top_level.txt

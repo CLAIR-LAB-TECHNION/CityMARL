@@ -51,9 +51,6 @@ def setup_learning():
 
     return agent_kwargs
 
-
-
-
 def train (env, agent_kwargs: dict, episodes: int, reward_function: RewardFunction,
             random_seed: int) -> dict:
     """Trains an agent on a custom environment.
@@ -130,7 +127,6 @@ def train (env, agent_kwargs: dict, episodes: int, reward_function: RewardFuncti
     return {'model': sac_model,
             'train_start_timestamp': train_start_timestamp,
             'train_end_timestamp': train_end_timestamp,}
-
 
 def perform_training_iteration():
     print("performing training iteration")

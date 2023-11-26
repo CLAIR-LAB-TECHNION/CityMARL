@@ -14,12 +14,12 @@ from stable_baselines3 import SAC
 
 import time
 
-def setup_environment(dataset_name='citylearn_challenge_2022_phase_all', building_names=['Building_1'], day_count=7, random_seed=0, active_observations=['hour', 'day_type']):
+def setup_environment(dataset_name='citylearn_challenge_2022_phase_all', isCentralAgent=True, building_names=['Building_1'], day_count=7, random_seed=0, active_observations=['hour', 'day_type']):
 
-    print("setting up learning")
+    print("setting up environment")
     schema = customize_environment(dataset_name, building_names,day_count,random_seed,active_observations)
     # initialize environment
-    env = CityLearnEnv(schema, central_agent=True)
+    env = CityLearnEnv(schema, central_agent=isCentralAgent)
     # set reward function
     env.reward_function = SACSolarReward(env=env)
     # wrap environment
@@ -34,8 +34,9 @@ def setup_environment(dataset_name='citylearn_challenge_2022_phase_all', buildin
     )
     return env
 
-def setup_learning():
-    agent_kwargs = {
+def setup_learning(env, rl_algorithm, loader, callback_method,random_seed=0):
+    print("setting up learning")
+    learning_params_dict = {
         'learning_rate': 0.001,
         'buffer_size': 1000000,
         'learning_starts': 100,
@@ -46,12 +47,14 @@ def setup_learning():
         'weights_vector': [1, 1],
         'policy_kwargs': {'n_reward_components': 2}
     }
-    episode_count = 30
-    print("setting up learning")
+    # setting the callback method
+    callback = callback_method(env=env,loader=loader)
+    # initalized the learning algorithm
+    learning_algorithm = rl_algorithm(policy='MlpPolicy', env=env, seed=random_seed)
 
-    return agent_kwargs
+    return [learning_algorithm, callback,learning_params_dict]
 
-def train (env, agent_kwargs: dict, episodes: int, reward_function: RewardFunction,
+def train (env, learning_algorithm, callback, learning_params_dict: dict, episode_count: int, reward_function: RewardFunction,
             random_seed: int) -> dict:
     """Trains an agent on a custom environment.
 
@@ -105,26 +108,21 @@ def train (env, agent_kwargs: dict, episodes: int, reward_function: RewardFuncti
     """
     print("starting training")
 
-
-    # initialize agent
-    sac_model = SAC(policy='MlpPolicy', env=env, seed=random_seed)
-
     # initialize loader
-    total_timesteps = episodes * (env.time_steps - 1)
-    print('Number of episodes to train:', episodes)
+    total_timesteps = episode_count * (env.time_steps - 1)
+    print('Number of episodes to train:', episode_count)
 
     # initialize SAC loader
     sac_modr_loader = get_loader(max=total_timesteps)
-    print('Train SAC agent...')
+    print('Train agent...')
     #display(sac_modr_loader)
 
-    # train SAC agent
-    sac_callback = CustomCallback(env=env, loader=sac_modr_loader)
+    # train agent
     train_start_timestamp = time.time()
-    sac_model = sac_model.learn(total_timesteps=total_timesteps,callback=sac_callback)
+    rl_model = learning_algorithm.learn(total_timesteps=total_timesteps,callback=callback)
     train_end_timestamp = time.time()
     print("finished training")
-    return {'model': sac_model,
+    return {'model': rl_model,
             'train_start_timestamp': train_start_timestamp,
             'train_end_timestamp': train_end_timestamp,}
 

@@ -1,11 +1,10 @@
-from ipywidgets import IntProgress
 from citylearn.citylearn import CityLearnEnv
 from stable_baselines3.common.callbacks import BaseCallback
 from typing import List
 import numpy as np
 
 class CustomCallback(BaseCallback):
-    def __init__(self, env: CityLearnEnv, loader: IntProgress):
+    def __init__(self, env: CityLearnEnv):
         r"""Initialize CustomCallback.
 
         Parameters
@@ -17,7 +16,7 @@ class CustomCallback(BaseCallback):
         """
 
         super().__init__(verbose=0)
-        self.loader = loader
+        self.step_count = 0
         self.env = env
         self.reward_history = [0]
 
@@ -30,28 +29,13 @@ class CustomCallback(BaseCallback):
         else:
             self.reward_history[-1] += sum(self.env.rewards[-1])
 
-        self.loader.value += 1
+        self.step_count += 1
 
         return True
 
 
-def get_loader(**kwargs):
-    """Returns a progress bar"""
-
-    kwargs = {
-        'value': 0,
-        'min': 0,
-        'max': 10,
-        'description': 'Simulating:',
-        'bar_style': '',
-        'style': {'bar_color': 'maroon'},
-        'orientation': 'horizontal',
-        **kwargs
-    }
-    return IntProgress(**kwargs)
-
 class SACDCallback(BaseCallback):
-    def __init__(self, env: CityLearnEnv, loader: IntProgress, weights_vector: List[float] = [1]):
+    def __init__(self, env: CityLearnEnv, weights_vector: List[float] = [1]):
         r"""Initialize CustomCallback.
 
         Parameters
@@ -63,7 +47,7 @@ class SACDCallback(BaseCallback):
         """
 
         super().__init__(verbose=0)
-        self.loader = loader
+        self.step_count = 0
         self.env = env
         self.reward_history = [0]
         self.weights_vector = weights_vector
@@ -77,6 +61,6 @@ class SACDCallback(BaseCallback):
         else:
             self.reward_history[-1] += np.dot(np.array(self.env.rewards[-1]),np.array(self.weights_vector))
 
-        self.loader.value += 1
+        self.step_count += 1
 
         return True

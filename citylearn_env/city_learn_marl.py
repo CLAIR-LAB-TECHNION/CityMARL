@@ -1,12 +1,9 @@
 from citylearn_env.environment_setup import customize_environment, set_schema_simulation_period
-from citylearn_env.custom_rewards import SACSolarReward
-from citylearn_env.utils import CustomCallback,get_loader
-
+from citylearn_env.custom_rewards import SACSolarReward, SACCustomReward
+from citylearn_env.simulation_results import plot_actions, plot_building_kpis
 
 from citylearn.citylearn import CityLearnEnv
 from citylearn.wrappers import NormalizedObservationWrapper, StableBaselines3Wrapper
-from citylearn.reward_function import RewardFunction
-from typing import List
 
 
 from stable_baselines3 import SAC
@@ -14,14 +11,17 @@ from stable_baselines3 import SAC
 
 import time
 
-def setup_environment(dataset_name='citylearn_challenge_2022_phase_all', isCentralAgent=True, building_names=['Building_1'], day_count=7, random_seed=0, active_observations=['hour', 'day_type']):
+def setup_environment(dataset_name='citylearn_challenge_2022_phase_all',reward_func_name ='', isCentralAgent=True, building_names=['Building_1'], day_count=7, random_seed=0, active_observations=['hour', 'day_type']):
 
     print("setting up environment")
     schema = customize_environment(dataset_name, building_names,day_count,random_seed,active_observations)
     # initialize environment
     env = CityLearnEnv(schema, central_agent=isCentralAgent)
     # set reward function
-    env.reward_function = SACSolarReward(env=env)
+    if reward_func_name == 'SACSolarReward':
+        env.reward_function = SACSolarReward(env=env)
+    else:
+        env.reward_function = SACCustomReward(env=env)
     # wrap environment
     env = NormalizedObservationWrapper(env)
     env = StableBaselines3Wrapper(env)
@@ -34,7 +34,7 @@ def setup_environment(dataset_name='citylearn_challenge_2022_phase_all', isCentr
     )
     return env
 
-def setup_learning(env, rl_algorithm, loader, callback_method,random_seed=0):
+def setup_learning(env, rl_algorithm_name, random_seed=0):
     print("setting up learning")
     learning_params_dict = {
         'learning_rate': 0.001,
@@ -47,64 +47,16 @@ def setup_learning(env, rl_algorithm, loader, callback_method,random_seed=0):
         'weights_vector': [1, 1],
         'policy_kwargs': {'n_reward_components': 2}
     }
-    # setting the callback method
-    callback = callback_method(env=env,loader=loader)
+
     # initalized the learning algorithm
-    learning_algorithm = rl_algorithm(policy='MlpPolicy', env=env, seed=random_seed)
+    if rl_algorithm_name == 'SAC':
+        learning_algorithm = SAC(policy='MlpPolicy', env=env, seed=random_seed)
+    else:
+        rl_algorithm_name = ''
+    return [learning_algorithm,learning_params_dict]
 
-    return [learning_algorithm, callback,learning_params_dict]
-
-def train (env, learning_algorithm, callback, learning_params_dict: dict, episode_count: int, reward_function: RewardFunction,
-            random_seed: int) -> dict:
+def learn (env, learning_algorithm, callback_method, learning_params_dict: dict, episode_count: int) -> dict:
     """Trains an agent on a custom environment.
-
-       Trains an SAC agent using a custom environment and agent hyperparamter
-       setup and plots the key performance indicators (KPIs), actions and
-       rewards from training and evaluating the agent.
-
-       Parameters
-       ----------
-       agent_kwargs: dict
-           Defines the hyperparameters used to initialize the SAC agent.
-       episodes: int
-           Number of episodes to train the agent for.
-       reward_function: RewardFunction
-           A base or custom reward function class.
-       building_count: int
-           Number of buildings to set as active in schema.
-       day_count: int
-           Number of simulation days.
-       active_observations: List[str]
-           Names of observations to set active to be passed to control agent.
-       random_seed: int
-           Seed for pseudo-random number generator.
-       reference_envs: Mapping[str, CityLearnEnv], default: None
-           Mapping of user-defined control agent names to environments
-           the agents have been used to control.
-       show_figures: bool, default: False
-           Indicate if summary figures should be plotted at the end of
-           evaluation.
-
-       Returns
-       -------
-       result: dict
-           Results from training the agent as well as some input variables
-           for reference including the following value keys:
-
-               * random_seed: int
-               * env: CityLearnEnv
-               * model: SAC
-               * actions: List[float]
-               * rewards: List[float]
-               * agent_kwargs: dict
-               * episodes: int
-               * reward_function: RewardFunction
-               * buildings: List[str]
-               * simulation_start_time_step: int
-               * simulation_end_time_step: int
-               * active_observations: List[str]
-               * train_start_timestamp: datetime
-               * train_end_timestamp: datetime
     """
     print("starting training")
 
@@ -113,13 +65,13 @@ def train (env, learning_algorithm, callback, learning_params_dict: dict, episod
     print('Number of episodes to train:', episode_count)
 
     # initialize SAC loader
-    sac_modr_loader = get_loader(max=total_timesteps)
-    print('Train agent...')
+    #sac_modr_loader = get_loader(max=total_timesteps)
+    #print('Train agent...')
     #display(sac_modr_loader)
 
     # train agent
     train_start_timestamp = time.time()
-    rl_model = learning_algorithm.learn(total_timesteps=total_timesteps,callback=callback)
+    rl_model = learning_algorithm.learn(total_timesteps=total_timesteps,callback=callback_method)
     train_end_timestamp = time.time()
     print("finished training")
     return {'model': rl_model,
@@ -134,19 +86,19 @@ def evaluate(env, model):
 
     # Evaluate the trained SAC model
     observations = env.reset()
-    sacr_actions_list = []
+    actions_list = []
 
     while not env.done:
         actions, _ = model.predict(observations, deterministic=True)
         observations, _, _, _ = env.step(actions)
-        sacr_actions_list.append(actions)
+        actions_list.append(actions)
 
-    #fig = plot_actions(sacr_actions_list, 'SAC Actions', sacr_env)
-    #plt.show()
-    #reference_envs = {'SAC': sacr_env}
+    fig = plot_actions(actions_list, 'Actions', env)
+    fig.show()
+    envsDict = {'env1':env}
 
-    ## initialize SACD loader
-    #loader = get_loader(max=total_timesteps)
-    #print('Train SACD agent...')
-    # display(loader)
+    fig_kpis= plot_building_kpis(envs=envsDict)
+    fig_kpis.show()
+    a = 9
+
 

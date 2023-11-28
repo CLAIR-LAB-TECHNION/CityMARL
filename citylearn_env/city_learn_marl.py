@@ -62,7 +62,7 @@ def setup_learning(env, rl_algorithm_name,policy='MlpPolicy',learning_params_dic
 
     return learning_algorithm
 
-def learn (env, learning_algorithm, callback_method, learning_params_dict: dict, episode_count: int) -> dict:
+def learn (env, learning_algorithm, callback_method, episode_count: int) -> dict:
     """Trains an agent on a custom environment.
     """
     print("starting training")

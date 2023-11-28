@@ -11,8 +11,7 @@ from stable_baselines3 import SAC
 
 import time
 
-def setup_environment(dataset_name='citylearn_challenge_2022_phase_all',reward_func_name ='', isCentralAgent=True, building_names=['Building_1'], day_count=7, random_seed=0, active_observations=['hour', 'day_type']):
-
+def setup_environment(dataset_name:str,reward_func_name:str,building_names:list,day_count:int,active_observations:list,isCentralAgent=True,random_seed=0, ):
     print("setting up environment")
     schema = customize_environment(dataset_name, building_names,day_count,random_seed,active_observations)
     # initialize environment
@@ -34,25 +33,29 @@ def setup_environment(dataset_name='citylearn_challenge_2022_phase_all',reward_f
     )
     return env
 
-def setup_learning(env, rl_algorithm_name, random_seed=0):
+def setup_learning(env, rl_algorithm_name,policy='MlpPolicy',learning_params_dict =None, random_seed=0):
     print("setting up learning")
-    learning_params_dict = {
-        'learning_rate': 0.001,
-        'buffer_size': 1000000,
-        'learning_starts': 100,
-        'batch_size': 256,
-        'tau': 0.005,
-        'gamma': 0.99,
-        'train_freq': 1,
-        'weights_vector': [1, 1],
-        'policy_kwargs': {'n_reward_components': 2}
-    }
-
+    print(rl_algorithm_name)
     # initalized the learning algorithm
-    if rl_algorithm_name == 'SAC':
-        learning_algorithm = SAC(policy='MlpPolicy', env=env, seed=random_seed)
+    if rl_algorithm_name == "SAC":
+        learning_algorithm = SAC(policy=policy,  env=env, seed=random_seed)
+
+    elif rl_algorithm_name == "SACD":
+        if learning_params_dict is None:
+            learning_params_dict = {
+                'learning_rate': 0.001,
+                'buffer_size': 1000000,
+                'learning_starts': 100,
+                'batch_size': 256,
+                'tau': 0.005,
+                'gamma': 0.99,
+                'train_freq': 1,
+                'weights_vector': [1, 1],
+                'policy_kwargs': {'n_reward_components': 2}
+            }
     else:
-        rl_algorithm_name = ''
+        raise Exception("rl_algorithm_name not defined.")
+
     return [learning_algorithm,learning_params_dict]
 
 def learn (env, learning_algorithm, callback_method, learning_params_dict: dict, episode_count: int) -> dict:

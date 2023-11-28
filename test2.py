@@ -4,7 +4,10 @@ from citylearn_env.utils import CustomCallback
 from stable_baselines3 import SAC
 from citylearn_env.jupyter_utils import in_notebook
 def main():
-    env= setup_environment(reward_func_name='SACSolarReward')
+    env = setup_environment(dataset_name='citylearn_challenge_2022_phase_all', reward_func_name='SACSolarReward',
+                            isCentralAgent=True, building_names=['Building_1'], day_count=7, random_seed=0,
+                            active_observations=['hour', 'day_type'])
+
     RANDOM_SEED = 0
     callback_method = CustomCallback(env=env)
     [learning_algorithm, learning_params_dict]=setup_learning(env=env, rl_algorithm_name='SAC', random_seed=RANDOM_SEED)

@@ -2,7 +2,7 @@ import pandas as pd
 from typing import Mapping, List
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
-#import seaborn as sns
+import seaborn as sns
 import math
 import numpy as np
 
@@ -84,7 +84,7 @@ def plot_building_kpis(envs: Mapping[str, CityLearnEnv]) -> plt.Figure:
     fig, _ = plt.subplots(
         row_count, column_count, figsize=figsize, sharey=True
     )
-    '''
+
     for i, (ax, (k, k_data)) in enumerate(zip(fig.axes, kpis.groupby('kpi'))):
         sns.barplot(x='value', y='name', data=k_data, hue='env_id', ax=ax)
         ax.axvline(1.0, color='black', linestyle='--', label='Baseline')
@@ -108,7 +108,7 @@ def plot_building_kpis(envs: Mapping[str, CityLearnEnv]) -> plt.Figure:
                 p.get_y() + p.get_height()/2.0,
                 p.get_width(), ha='left', va='center'
             )
-    '''
+
     plt.tight_layout()
     return fig
 

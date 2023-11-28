@@ -1,6 +1,6 @@
 from citylearn_env.environment_setup import customize_environment, set_schema_simulation_period
 from citylearn_env.custom_rewards import SACSolarReward, SACCustomReward
-from citylearn_env.simulation_results import plot_actions, plot_building_kpis
+from citylearn_env.simulation_results import plot_simulation_summary, plot_actions, plot_building_kpis
 
 from citylearn.citylearn import CityLearnEnv
 from citylearn.wrappers import NormalizedObservationWrapper, StableBaselines3Wrapper
@@ -81,7 +81,8 @@ def learn (env, learning_algorithm, callback_method, learning_params_dict: dict,
 def perform_training_iteration():
     print("performing training iteration")
 
-def evaluate(env, model):
+def evaluate(env,env_name, model):
+    envsDict = {env_name: env}
     print("starting evaluation")
 
     # Evaluate the trained SAC model
@@ -93,12 +94,11 @@ def evaluate(env, model):
         observations, _, _, _ = env.step(actions)
         actions_list.append(actions)
 
-    fig = plot_actions(actions_list, 'Actions', env)
-    fig.show()
-    envsDict = {'env1':env}
+    plot_simulation_summary(envsDict)
+    #actions_fig = plot_actions(actions_list, 'Actions', env)
+    #fig.show()
 
-    fig_kpis= plot_building_kpis(envs=envsDict)
-    fig_kpis.show()
-    a = 9
-
+    #kpis_fig= plot_building_kpis(envs=envsDict)
+    #fig_kpis.show()
+    #return [actions_fig,kpis_fig]
 

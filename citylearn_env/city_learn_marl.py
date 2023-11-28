@@ -60,7 +60,7 @@ def setup_learning(env, rl_algorithm_name,policy='MlpPolicy',learning_params_dic
     else:
         raise Exception("rl_algorithm_name not defined.")
 
-    return [learning_algorithm,learning_params_dict]
+    return learning_algorithm
 
 def learn (env, learning_algorithm, callback_method, learning_params_dict: dict, episode_count: int) -> dict:
     """Trains an agent on a custom environment.

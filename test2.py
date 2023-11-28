@@ -10,9 +10,19 @@ def main():
 
     RANDOM_SEED = 0
     callback_method = CustomCallback(env=env)
-    [learning_algorithm, learning_params_dict]=setup_learning(env=env, rl_algorithm_name='SAC', random_seed=RANDOM_SEED)
-    train_result= learn(env=env, learning_algorithm=learning_algorithm, callback_method=callback_method, learning_params_dict= learning_params_dict, episode_count=3)
+
+    # SAC
+    #[learning_algorithm, learning_params_dict]=setup_learning(env=env, rl_algorithm_name='SAC', random_seed=RANDOM_SEED)
+    #train_result= learn(env=env, learning_algorithm=learning_algorithm, callback_method=callback_method, learning_params_dict= learning_params_dict, episode_count=3)
+    #evaluate(env, 'env1', train_result.get('model'))
+
+    # SACD
+    [learning_algorithm, learning_params_dict] = setup_learning(env=env, rl_algorithm_name='SACD',
+                                                                random_seed=RANDOM_SEED)
+    train_result = learn(env=env, learning_algorithm=learning_algorithm, callback_method=callback_method,
+                         learning_params_dict=learning_params_dict, episode_count=3)
     evaluate(env, 'env1', train_result.get('model'))
+
 
 if __name__ == "__main__":
     print(in_notebook())

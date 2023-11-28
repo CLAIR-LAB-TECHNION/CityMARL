@@ -1,6 +1,8 @@
 from citylearn_env.environment_setup import customize_environment, set_schema_simulation_period
 from citylearn_env.custom_rewards import SACSolarReward, SACCustomReward
 from citylearn_env.simulation_results import plot_simulation_summary, plot_actions, plot_building_kpis
+from MARL_algs.SACD import SACD
+
 
 from citylearn.citylearn import CityLearnEnv
 from citylearn.wrappers import NormalizedObservationWrapper, StableBaselines3Wrapper
@@ -53,6 +55,8 @@ def setup_learning(env, rl_algorithm_name,policy='MlpPolicy',learning_params_dic
                 'weights_vector': [1, 1],
                 'policy_kwargs': {'n_reward_components': 2}
             }
+        learning_algorithm = SACD('MultiPerspectivePolicy', env, **learning_params_dict, seed=random_seed)
+
     else:
         raise Exception("rl_algorithm_name not defined.")
 

@@ -3,19 +3,16 @@ from citylearn_env.custom_rewards import SACSolarReward, SACCustomReward
 from citylearn_env.simulation_results import plot_simulation_summary, plot_actions, plot_building_kpis
 from MARL_algs.SACD import SACD
 
-
 from citylearn.citylearn import CityLearnEnv
 from citylearn.wrappers import NormalizedObservationWrapper, StableBaselines3Wrapper
-
-
-from stable_baselines3 import SAC
+from stable_baselines3 import SAC, DDPG, A2C, PPO, TD3
 
 
 import time
 
-def setup_environment(dataset_name:str,reward_func_name:str,building_names:list,day_count:int,active_observations:list,isCentralAgent=True,random_seed=0, ):
+def setup_environment(dataset_name:str,reward_func_name:str,building_names:list,day_count:int,active_observations:list,active_actions:list=['electrical_storage'],isCentralAgent=True,random_seed=0, ):
     print("setting up environment")
-    schema = customize_environment(dataset_name, building_names,day_count,random_seed,active_observations)
+    schema = customize_environment(dataset_name, building_names,day_count,random_seed,active_observations,active_actions)
     # initialize environment
     env = CityLearnEnv(schema, central_agent=isCentralAgent)
     # set reward function
@@ -57,6 +54,21 @@ def setup_learning(env, rl_algorithm_name,policy='MlpPolicy',learning_params_dic
             }
         learning_algorithm = SACD('MultiPerspectivePolicy', env, **learning_params_dict, seed=random_seed)
 
+    elif rl_algorithm_name == "DDPG":
+        learning_algorithm = DDPG(policy=policy,  env=env, seed=random_seed)
+
+
+    elif rl_algorithm_name == "A2C":
+        learning_algorithm = A2C(policy=policy,  env=env, seed=random_seed)
+
+    elif rl_algorithm_name == "PPO":
+        learning_algorithm = PPO(policy=policy,  env=env, seed=random_seed)
+
+    elif rl_algorithm_name == "TD3":
+        learning_algorithm = TD3(policy=policy, env=env, seed=random_seed)
+
+
+
     else:
         raise Exception("rl_algorithm_name not defined.")
 
@@ -88,7 +100,7 @@ def learn (env, learning_algorithm, callback_method, episode_count: int) -> dict
 def perform_training_iteration():
     print("performing training iteration")
 
-def evaluate(env,env_name, model):
+def evaluate(env, env_name, model, save_to_file = True, evaluation_name="eval"):
     envsDict = {env_name: env}
     print("starting evaluation")
 
@@ -101,7 +113,10 @@ def evaluate(env,env_name, model):
         observations, _, _, _ = env.step(actions)
         actions_list.append(actions)
 
-    plot_simulation_summary(envsDict)
+
+
+    plot_simulation_summary(envsDict, save_to_file, evaluation_name = evaluation_name)
+
     #actions_fig = plot_actions(actions_list, 'Actions', env)
     #fig.show()
 

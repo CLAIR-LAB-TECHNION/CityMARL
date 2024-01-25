@@ -5,8 +5,11 @@ import matplotlib.ticker as ticker
 import seaborn as sns
 import math
 import numpy as np
+import os
 
 from citylearn.citylearn import CityLearnEnv
+
+RESULTS_DIR = os.path.join(os.getcwd(),"results")
 
 
 def get_kpis(env: CityLearnEnv) -> pd.DataFrame:
@@ -294,7 +297,7 @@ def plot_battery_soc_profiles(envs: Mapping[str, CityLearnEnv]) -> plt.Figure:
     return fig
 
 
-def plot_simulation_summary(envs: Mapping[str, CityLearnEnv]):
+def plot_simulation_summary(envs: Mapping[str, CityLearnEnv],save_to_file = False, save_loc = RESULTS_DIR, evaluation_name =""):
     """Plots KPIs, load and battery SoC profiles for different control agents.
 
     Parameters
@@ -304,21 +307,46 @@ def plot_simulation_summary(envs: Mapping[str, CityLearnEnv]):
         the agents have been used to control.
     """
 
+    #create results directory - if it doesn't exists
+    if save_to_file and not os.path.exists(save_loc):
+        os.makedirs(save_loc)
+
+
+
     _ = plot_building_kpis(envs)
     print('Building-level KPIs:')
-    plt.show()
+    if save_to_file:
+        plt.savefig(os.path.join(save_loc,evaluation_name+'-Building-level-KPIs.png'), transparent=False, dpi=80, bbox_inches="tight")
+    else:
+        plt.show()
+
     _ = plot_building_load_profiles(envs)
     print('Building-level load profiles:')
-    plt.show()
+    if save_to_file:
+        plt.savefig(os.path.join(save_loc,evaluation_name + '-Building-level-load-profiles.png'), transparent=False, dpi=80, bbox_inches="tight")
+    else:
+        plt.show()
+
     _ = plot_battery_soc_profiles(envs)
     print('Battery SoC profiles:')
-    plt.show()
-    _ = plot_district_kpis(envs)
+    if save_to_file:
+        plt.savefig(os.path.join(save_loc,evaluation_name+'-Building-level-SoC-profiles.png'), transparent=False, dpi=80, bbox_inches="tight")
+    else:
+        plt.show()
+
     print('District-level KPIs:')
-    plt.show()
+    _ = plot_district_kpis(envs)
+    if save_to_file:
+        plt.savefig(os.path.join(save_loc,evaluation_name+ '-District-level-KPIs.png'), transparent=False, dpi=80, bbox_inches="tight")
+    else:
+        plt.show()
+
     print('District-level load profiles:')
     _ = plot_district_load_profiles(envs)
-    plt.show()
+    if save_to_file:
+        plt.savefig(os.path.join(save_loc,evaluation_name+ '-District-level-load-profiles.png'), transparent=False, dpi=80, bbox_inches="tight")
+    else:
+        plt.show()
 
 
 def plot_actions(actions_list: List[List[float]], title: str, env: CityLearnEnv) -> plt.Figure:

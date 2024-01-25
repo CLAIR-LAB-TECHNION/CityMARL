@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from citylearn.data import DataSet
 
-def customize_environment(dataset_name, building_names, day_count, random_seed, active_observations):
+def customize_environment(dataset_name, building_names, day_count, random_seed, active_observations,active_actions):
     print("customizing environment")
 
     # get schema
@@ -23,6 +23,8 @@ def customize_environment(dataset_name, building_names, day_count, random_seed, 
     schema, simulation_start_time_step, simulation_end_time_step = set_schema_simulation_period(schema, day_count, random_seed)
     # set active observation
     schema = set_active_observations(schema, active_observations)
+    # set active actions
+    schema = set_active_actions(schema, active_actions)
 
     print('Selected buildings:', buildings)
     print(f'Selected {day_count}-day period time steps:',
@@ -176,6 +178,42 @@ def set_active_observations(
     assert active_count == len(active_observations),\
         'the provided observations are not all valid observations.'\
           f' Valid observations in CityLearn are: {valid_observations}'
+
+    return schema
+
+
+
+def set_active_actions(
+    schema: dict, active_actions: List[str]
+) -> dict:
+    """Set the observations that will be part of the action space that is provided to the control agent.
+
+    Parameters
+    ----------
+    schema: dict
+        CityLearn dataset mapping used to construct environment.
+    active_actions: List[str]
+        Names of actions to set active to be passed to control agent.
+
+    Returns
+    -------
+    schema: dict
+        CityLearn dataset mapping with active observations set.
+    """
+
+    active_count = 0
+
+    for o in schema['actions']:
+        if o in active_actions:
+            schema['actions'][o]['active'] = True
+            active_count += 1
+        else:
+            schema['actions'][o]['active'] = False
+
+    valid_actions = list(schema['actions'].keys())
+    assert active_count == len(active_actions),\
+        'the provided actions are not all valid actions.'\
+          f' Valid actions in CityLearn are: {valid_actions}'
 
     return schema
 
